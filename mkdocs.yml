@@ -1,0 +1,10 @@
+site_name: Brook's Personal Wiki
+nav:
+    - Home: index.md
+    - 'python':
+        - "函数式": python_function_style.md
+theme: mkdocs
+extra:
+    search:
+        language: 'en jp'
+
