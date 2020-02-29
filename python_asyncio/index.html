@@ -4,14 +4,14 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="None">
         
         
-        <link rel="shortcut icon" href="img/favicon.ico">
-        <title>Brook's Personal Wiki</title>
-        <link href="css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="css/font-awesome.min.css" rel="stylesheet">
-        <link href="css/base.css" rel="stylesheet">
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Python asyncio - Brook's Personal Wiki</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
@@ -19,13 +19,13 @@
             <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
 
-        <script src="js/jquery-1.10.2.min.js" defer></script>
-        <script src="js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
-    <body class="homepage">
+    <body>
 
         <div class="navbar navbar-default navbar-fixed-top" role="navigation">
             <div class="container">
@@ -39,22 +39,22 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href=".">Brook's Personal Wiki</a>
+                    <a class="navbar-brand" href="..">Brook's Personal Wiki</a>
                 </div>
 
                 <!-- Expanded navigation -->
                 <div class="navbar-collapse collapse">
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
-                            <li class="active">
-                                <a href=".">Home</a>
+                            <li >
+                                <a href="..">Home</a>
                             </li>
                             <li class="dropdown">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">python <b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     
 <li >
-    <a href="python_function_style/">函数式</a>
+    <a href="../python_function_style/">函数式</a>
 </li>
                                 </ul>
                             </li>
@@ -66,16 +66,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li class="disabled">
-                                <a rel="next" >
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="python_function_style/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                     </ul>
                 </div>
             </div>
@@ -84,22 +74,92 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#_1">关于</a></li>
-        <li class="main "><a href="#_2">导航</a></li>
+        <li class="main active"><a href="#_1">基本概念</a></li>
+        <li class="main "><a href="#async-for">async for的使用</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h2 id="_1">关于</h2>
-<p>这是brook的wiki，平时收集的内容会在这个地方更新</p>
-<h2 id="_2">导航</h2>
-<ul>
-<li><strong>python</strong><ul>
-<li><a href="python_function_style">函数式编程</a></li>
-<li><a href="python_asyncio">asyncio</a></li>
-</ul>
-</li>
-</ul></div>
+<h2 id="_1">基本概念</h2>
+<p><strong>future</strong>
+future是一个数据结构，表示还未完成的工作结果。事件循环可以监视<strong>Future对象是否完成</strong>。从而允许应用的一部分等待另一部分完成一些工作。</p>
+<p><strong>Task</strong></p>
+<p>task是<strong>Future的一个子类</strong>，它知道如何<strong>包装和管理一个协程的执行</strong>。任务所需的资源可用时，事件循环会调度任务，并生成一个结果，从而可以<strong>由其他协程消费</strong>。</p>
+<p>任务（Task）是与事件循环交互的主要途径之一。任务可以包装协程，可以跟踪协程何时完成。任务是Future的子类，所以使用方法和future一样。协程可以等待任务，每个任务都有一个结果，在它完成之后可以获取这个结果。因为协程是没有状态的，我们通过使用create_task方法可以将协程包装成有状态的任务。还可以在任务运行的过程中取消任务。</p>
+<pre><code class="python">import asyncio
+
+
+async def child():
+    print(&quot;进入子协程&quot;)
+    return &quot;the result&quot;
+
+
+async def main(loop):
+    print(&quot;将协程child包装成任务&quot;)
+    task = loop.create_task(child())
+    print(&quot;通过cancel方法可以取消任务&quot;)
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        print(&quot;取消任务抛出CancelledError异常&quot;)
+    else:
+        print(&quot;获取任务的结果&quot;, task.result())
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main(loop))
+    finally:
+        loop.close()
+</code></pre>
+
+<p>另外出了使用loop.create_task将协程包装为任务外还可以使用asyncio.ensure_future(coroutine)建一个task。在python3.7中可以使用asyncio.create_task创建任务。</p>
+<p><strong>启动一个协程</strong></p>
+<p>一般对于<strong>入口函数</strong>，最简答的方法就是使用<strong>run_until_complete()，并将协程直接传入这个方法</strong>。</p>
+<pre><code class="python">import asyncio
+
+
+async def foo():
+    print(&quot;这是一个协程&quot;)
+
+
+if __name__ == '__main__':
+    loop = asyncio.get_event_loop()
+    try:
+        print(&quot;开始运行协程&quot;)
+        coro = foo()
+        print(&quot;进入事件循环&quot;)
+        loop.run_until_complete(coro)
+    finally:
+        print(&quot;关闭事件循环&quot;)
+        loop.close()
+</code></pre>
+
+<h2 id="async-for">async for的使用</h2>
+<pre><code class="python">import random
+import asyncio
+
+
+async def random_number_gen(delay, start, end):
+    while True:
+        yield random.randint(start, end)
+        await asyncio.sleep(delay)
+
+
+async def main():
+    async for i in random_number_gen(1, 0, 100):
+        print(i)
+
+
+try:
+    print(&quot;Starting to print out random numbers...&quot;)
+    print(&quot;Shut down the application with Ctrl+C&quot;)
+    asyncio.run(main())
+except KeyboardInterrupt:
+    print(&quot;Closed the main loop..&quot;)
+</code></pre></div>
         </div>
 
         <footer class="col-md-12">
@@ -107,11 +167,11 @@
             <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
         <script>
-            var base_url = ".",
+            var base_url = "..",
                 shortcuts = {"search": 83, "next": 78, "help": 191, "previous": 80};
         </script>
-        <script src="js/base.js" defer></script>
-        <script src="search/main.js" defer></script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">
@@ -179,8 +239,3 @@
 
     </body>
 </html>
-
-<!--
-MkDocs version : 1.0.4
-Build Date UTC : 2020-02-29 18:09:34
--->
